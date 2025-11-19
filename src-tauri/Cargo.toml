@@ -27,3 +27,5 @@ tauri-plugin-shell = "2"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 tiny_http = "0.12"
 url = "2.5"
+dotenvy = "0.15"
+tauri-plugin-fs = "2"
