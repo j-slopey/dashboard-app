@@ -4,9 +4,10 @@ import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer';
 
 interface MediaControlWidgetProps {
   token: string;
+  onConnect?: () => void | Promise<void>;
 }
 
-export const MediaControlWidget = ({ token }: MediaControlWidgetProps) => {
+export const MediaControlWidget = ({ token, onConnect }: MediaControlWidgetProps) => {
   const {
     is_paused,
     is_active,
@@ -39,8 +40,16 @@ export const MediaControlWidget = ({ token }: MediaControlWidgetProps) => {
 
   if (!token) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-gray-400 text-center">Please log in to Spotify.</p>
+      <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
+        <p className="text-gray-400">Connect Spotify to enable playback controls.</p>
+        <button
+          type="button"
+          onClick={onConnect}
+          className="rounded-full bg-green-500 px-5 py-2 font-semibold text-black transition-colors hover:bg-green-400 disabled:opacity-50"
+          disabled={!onConnect}
+        >
+          Connect Spotify
+        </button>
       </div>
     );
   }

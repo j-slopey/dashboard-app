@@ -7,17 +7,18 @@ interface ClockWidgetProps {
 
 const buildFormatter = (timezone?: string, locale?: string) =>
   new Intl.DateTimeFormat(locale, {
-    hour: '2-digit',
+    hour: 'numeric',
     minute: '2-digit',
     second: '2-digit',
-    hour12: false,
+    hour12: true,
+    hourCycle: 'h12',
     timeZone: timezone,
   });
 
 const buildDateFormatter = (timezone?: string, locale?: string) =>
   new Intl.DateTimeFormat(locale, {
     weekday: 'long',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
     timeZone: timezone,
   });
@@ -34,8 +35,8 @@ export const ClockWidget = ({ timezone, locale }: ClockWidgetProps) => {
   const dateFormatter = useMemo(() => buildDateFormatter(timezone, locale), [timezone, locale]);
 
   return (
-    <div className="flex flex-col gap-2 text-center">
-      <p className="text-4xl font-mono text-white">{timeFormatter.format(now)}</p>
+    <div className="flex flex-col gap-2 text-start">
+      <p className="text-3xl font-mono text-white">{timeFormatter.format(now)}</p>
       <p className="text-gray-300">{dateFormatter.format(now)}</p>
       {timezone && <p className="text-xs uppercase tracking-wide text-gray-500">{timezone}</p>}
     </div>

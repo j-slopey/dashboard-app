@@ -43,10 +43,14 @@ const WEATHER_DESCRIPTIONS: Record<number, string> = {
 export const describeWeatherCode = (code: number) =>
   WEATHER_DESCRIPTIONS[code] ?? 'Unknown conditions';
 
-export const useWeather = ({ latitude, longitude, refreshIntervalMs = 5 * 60 * 1000 }: WeatherOptions) => {
+export const useWeather = ({ latitude, longitude, refreshIntervalMs = 5 * 60 * 1000 }: Partial<WeatherOptions>) => {
   const [state, setState] = useState<WeatherState>({ data: null, isLoading: true, error: null });
 
   useEffect(() => {
+    if (latitude === undefined || longitude === undefined) {
+      return;
+    }
+
     let isMounted = true;
     const controller = new AbortController();
 

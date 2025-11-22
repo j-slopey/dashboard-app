@@ -4,21 +4,27 @@ import { SystemVolumeWidget } from './SystemVolumeWidget';
 import { WeatherWidget } from './WeatherWidget';
 import { WidgetConfig } from './types';
 
-const getEnvNumber = (value: string | undefined, fallback: number) => {
+const toNumber = (value: string | undefined) => {
+  if (!value?.trim()) {
+    return undefined;
+  }
   const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
+  return Number.isFinite(parsed) ? parsed : undefined;
 };
 
-const weatherLat = getEnvNumber(import.meta.env.VITE_WEATHER_LAT, 40.7128);
-const weatherLon = getEnvNumber(import.meta.env.VITE_WEATHER_LON, -74.0060);
-const weatherLabel = import.meta.env.VITE_WEATHER_LOCATION ?? 'New York City';
-const clockTimezone = import.meta.env.VITE_CLOCK_TIMEZONE || undefined;
+const envWeatherLat = toNumber(import.meta.env.VITE_WEATHER_LAT);
+const envWeatherLon = toNumber(import.meta.env.VITE_WEATHER_LON);
+const envWeatherLabel = import.meta.env.VITE_WEATHER_LOCATION?.trim();
+const clockTimezone = import.meta.env.VITE_CLOCK_TIMEZONE?.trim();
+
+const hasManualWeather = envWeatherLat !== undefined && envWeatherLon !== undefined;
 
 interface WidgetDependencies {
   token: string;
+  requestSpotifyAuth: () => Promise<void> | void;
 }
 
-export const buildWidgetConfigs = ({ token }: WidgetDependencies): WidgetConfig[] => [
+export const buildWidgetConfigs = ({ token, requestSpotifyAuth }: WidgetDependencies): WidgetConfig[] => [
   {
     id: 'system-volume',
     title: 'System Volume',
@@ -33,9 +39,7 @@ export const buildWidgetConfigs = ({ token }: WidgetDependencies): WidgetConfig[
     title: 'Clock',
     size: 'small',
     component: ClockWidget,
-    props: {
-      timezone: clockTimezone,
-    },
+    props: clockTimezone ? { timezone: clockTimezone } : {},
   },
   {
     id: 'weather',
@@ -43,9 +47,13 @@ export const buildWidgetConfigs = ({ token }: WidgetDependencies): WidgetConfig[
     size: 'medium',
     component: WeatherWidget,
     props: {
-      latitude: weatherLat,
-      longitude: weatherLon,
-      locationLabel: weatherLabel,
+      ...(hasManualWeather
+        ? {
+            latitude: envWeatherLat,
+            longitude: envWeatherLon,
+          }
+        : {}),
+      ...(envWeatherLabel ? { locationLabel: envWeatherLabel } : {}),
     },
   },
   {
@@ -55,6 +63,7 @@ export const buildWidgetConfigs = ({ token }: WidgetDependencies): WidgetConfig[
     component: MediaControlWidget,
     props: {
       token,
+      onConnect: requestSpotifyAuth,
     },
   },
 ];
