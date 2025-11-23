@@ -11,6 +11,7 @@ interface WeatherResponse {
   apparentTemperature: number;
   humidity: number;
   weatherCode: number;
+  windSpeed?: number;
 }
 
 interface WeatherState {
@@ -59,7 +60,9 @@ export const useWeather = ({ latitude, longitude, refreshIntervalMs = 5 * 60 * 1
       const url = new URL('https://api.open-meteo.com/v1/forecast');
       url.searchParams.set('latitude', latitude.toString());
       url.searchParams.set('longitude', longitude.toString());
-      url.searchParams.set('current', 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code');
+      url.searchParams.set('current', 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,windspeed_10m');
+      // ensure wind speed units match temperature unit preference (mph)
+      url.searchParams.set('windspeed_unit', 'mph');
       url.searchParams.set('temperature_unit', 'fahrenheit');
       url.searchParams.set('timezone', 'auto');
 
@@ -75,6 +78,7 @@ export const useWeather = ({ latitude, longitude, refreshIntervalMs = 5 * 60 * 1
           apparentTemperature: current.apparent_temperature,
           humidity: current.relative_humidity_2m,
           weatherCode: current.weather_code,
+          windSpeed: current.windspeed_10m,
         };
         if (isMounted) {
           setState({ data, isLoading: false, error: null });

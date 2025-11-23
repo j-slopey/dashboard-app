@@ -8,6 +8,7 @@ interface WeatherWidgetProps {
 }
 
 const formatTemperature = (value: number) => `${Math.round(value)}°F`;
+const formatWindSpeed = (value: number) => `${Math.round(value)} mph`;
 
 export const WeatherWidget = ({ latitude: propLat, longitude: propLon, locationLabel }: WeatherWidgetProps) => {
   const hasManualCoords = propLat !== undefined && propLon !== undefined;
@@ -59,7 +60,12 @@ export const WeatherWidget = ({ latitude: propLat, longitude: propLon, locationL
       )}
       <div className="flex items-end gap-3">
         <p className="text-5xl font-bold text-white">{formatTemperature(data.temperature)}</p>
-        <p className="text-gray-400">Feels like {formatTemperature(data.apparentTemperature)}</p>
+        <div className="flex flex-col text-gray-400">
+          <p>Feels like {formatTemperature(data.apparentTemperature)}</p>
+          {data.windSpeed !== undefined && (
+            <p>Wind {formatWindSpeed(data.windSpeed)}</p>
+          )}
+        </div>
       </div>
       <p className="text-lg text-blue-200">{describeWeatherCode(data.weatherCode)}</p>
     </div>
