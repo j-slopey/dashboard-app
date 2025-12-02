@@ -45,7 +45,8 @@ export const WeatherWidget = ({ latitude: propLat, longitude: propLon, locationL
     return <p className="text-gray-400">Determining your location...</p>;
   }
 
-  if (isLoading) {
+  // Show the loading text only during the initial fetch (when no data yet exists)
+  if (isLoading && !data) {
     return <p className="text-gray-400">Fetching weather...</p>;
   }
 

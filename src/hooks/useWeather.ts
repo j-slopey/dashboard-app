@@ -56,7 +56,8 @@ export const useWeather = ({ latitude, longitude, refreshIntervalMs = 5 * 60 * 1
     const controller = new AbortController();
 
     const fetchWeather = async () => {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      // Only set `isLoading` when no data is yet available (initial load).
+      setState((prev) => ({ ...prev, isLoading: prev.data == null, error: null }));
       const url = new URL('https://api.open-meteo.com/v1/forecast');
       url.searchParams.set('latitude', latitude.toString());
       url.searchParams.set('longitude', longitude.toString());
@@ -81,7 +82,23 @@ export const useWeather = ({ latitude, longitude, refreshIntervalMs = 5 * 60 * 1
           windSpeed: current.windspeed_10m,
         };
         if (isMounted) {
-          setState({ data, isLoading: false, error: null });
+          // only update state if the weather data is meaningfully different
+          setState((prev) => {
+            const prevData = prev.data;
+            const equal =
+              prevData &&
+              prevData.temperature === data.temperature &&
+              prevData.apparentTemperature === data.apparentTemperature &&
+              prevData.humidity === data.humidity &&
+              prevData.weatherCode === data.weatherCode &&
+              (prevData.windSpeed === data.windSpeed || (prevData.windSpeed == null && data.windSpeed == null));
+
+            if (equal) {
+              // no change — keep existing data, but ensure isLoading false and error cleared
+              return { ...prev, isLoading: false, error: null };
+            }
+            return { data, isLoading: false, error: null };
+          });
         }
       } catch (error) {
         if (isMounted) {

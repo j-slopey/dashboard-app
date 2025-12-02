@@ -65,5 +65,6 @@ export const buildWidgetConfigs = ({ token, requestSpotifyAuth }: WidgetDependen
       token,
       onConnect: requestSpotifyAuth,
     },
+    bodyClassName: 'items-center text-center',
   },
 ];
